@@ -2,7 +2,17 @@
 
 Demo for exporting data from a Raven Database.
 
-## Running locally
+* [Installation](#installation)
+  * [Docker](#docker)
+  * [Docker Compose](#docker-compose)
+* [Admin](#admin)
+  * [Bootstrap Cluster](#bootstrap-cluster)
+  * [Create Database](#create-database)
+  * [Create Collection](#create-collection)
+* [Export Data](#export-data)
+
+
+## Installation
 
 ### Docker
 
@@ -54,21 +64,23 @@ docker-compose down -v --rmi local --remove-orphans
 
 You can access RavenDB instance on `http://localhost:8080`.
 
+## Admin
+
 ### Bootstrap Cluster
+
+Run `curl` command:
 
 ```shell
 curl -X POST http://localhost:8080/admin/cluster/bootstrap -d ''
 ```
 
-## Create Database
+### Create Database
 
 This will bootstrap the cluster if it has not already been done.
 
-### Manually
-
 Create the `Mobile` database manually via the [dashboard](http://localhost:8080/studio/index.html#databases).
 
-### Curl
+Or, run `curl` command:
 
 ```shell
 curl -X PUT "http://localhost:8080/admin/databases" -d '{"DatabaseName": "Mobile"}'
@@ -76,15 +88,11 @@ curl -X PUT "http://localhost:8080/admin/databases" -d '{"DatabaseName": "Mobile
 
 Documentation on the Admin API is scarse, but have found http://live-test.ravendb.net/debug/routes which shows list of endpoints,. Although, it will require trial and error as it doesn't include example requests/responses.
 
-## Create Collection
+### Create Collection
 
 Create the `MobileDevices` collection.
 
-### Curl
-
-Using the [REST API](https://ravendb.net/docs/article-page/5.4/csharp/client-api/rest-api/rest-api-intro).
-
-Run command:
+Using the [REST API](https://ravendb.net/docs/article-page/5.4/csharp/client-api/rest-api/rest-api-intro), run `curl` command:
 
 ```shell
 curl "http://localhost:8080/databases/Mobile/docs?id=1234" --upload-file "./sample-data/mobile-device.json"
