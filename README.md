@@ -2,17 +2,24 @@
 
 Demo for exporting data from a Raven Database.
 
-* [Installation](#installation)
-  * [Docker](#docker)
-  * [Docker Compose](#docker-compose)
-* [Admin](#admin)
-  * [Bootstrap Cluster](#bootstrap-cluster)
-  * [Create Database](#create-database)
-  * [Create Collection](#create-collection)
+* Installation
+  * [Raven 5.4](#installation-raven-54)
+    * [Docker](#docker)
+    * [Docker Compose](#docker-compose)
+  * [Raven 3.5](#installation-raven-35)
+* Admin
+  * [Raven 5.4](#admin-raven-54)
+    * [Bootstrap Cluster](#bootstrap-cluster)
+    * [Create Database](#create-database)
+    * [Create Collection](#create-collection)
+  * [Raven 3.5](#admin-raven-35)
 * [Export Data](#export-data)
+  * [Raven 5.4](#raven-54)
+  * [Raven 3.5](#raven-35)
 
+## Installation: Raven 5.4
 
-## Installation
+Installing RavenDB `5.4`.
 
 ### Docker
 
@@ -23,6 +30,7 @@ Install Docker image https://hub.docker.com/r/ravendb/ravendb:
 ```shell
 docker pull ravendb/ravendb:5.4-ubuntu-latest
 ```
+
 Running RavenDB version `5.4` locally running on port `8080`:
 
 ```shell
@@ -64,7 +72,15 @@ docker-compose down -v --rmi local --remove-orphans
 
 You can access RavenDB instance on `http://localhost:8080`.
 
-## Admin
+## Installation: Raven 3.5
+
+Download latest stable release from https://ravendb.net/download.
+
+You can access RavenDB instance on `http://localhost:8080`.
+
+## Admin: Raven 5.4
+
+Managing RavenDB `5.4` cluster.
 
 ### Bootstrap Cluster
 
@@ -109,13 +125,19 @@ Response:
 
 This will create the collection if it does not already exist, or add the document to it if it does.
 
+## Admin: Raven 3.5
+
+See https://ravendb.net/docs/article-page/3.5/csharp/studio/accessing-studio.
+
 ## Export Data
+
+### Raven 5.4
 
 Navigate to http://localhost:8080/studio/index.html#databases/tasks/exportDatabase?&database=Mobile and click `Export Databases`.
 
 Click `Advanced > Export all collections` if you want to export a single collection.
 
-To view the output you can extract it to JSON:
+To view the output you can extract the dump file to JSON:
 
 ```json
 {
@@ -177,3 +199,51 @@ To view the output you can extract it to JSON:
     "TimeSeries": []
 }
 ```
+
+### Raven 3.5
+
+See https://ravendb.net/docs/article-page/3.5/csharp/file-system/studio/tasks/export-and-import-views.
+
+Go to `Databases > Mobile > Tasks > Export Database`.
+
+Select `Advanced > Collections > Specified collections only` if you want to export specific collections.
+
+To view the output you can extract the dump file to JSON:
+
+```json
+{
+  "Docs": [
+    {
+      "name": "Galaxy S24",
+      "family": "Samsung",
+      "storage": "128GB",
+      "colour": "Black",
+      "createdOn": "2023-01-01 09:00:00",
+      "updatedOn": "2023-01-01 09:00:00",
+      "@metadata": {
+        "Raven-Entity-Name": "MobileDevices",
+        "Raven-Replication-Merged-History": true,
+        "Raven-Replication-History": [
+          {
+            "Raven-Replication-Version": 2,
+            "Raven-Replication-Source": "b95cda07-9a29-4282-94a0-3b024e727113"
+          }
+        ],
+        "Raven-Replication-Source": "b95cda07-9a29-4282-94a0-3b024e727113",
+        "Raven-Replication-Version": 3,
+        "@id": "1234",
+        "Last-Modified": "2023-11-01T14:43:12.5663575Z",
+        "Raven-Last-Modified": "2023-11-01T14:43:12.5663575",
+        "@etag": "01000000-0000-0001-0000-000000000003",
+        "Non-Authoritative-Information": false
+      }
+    }
+  ],
+  "Attachments": [],
+  "Indexes": [],
+  "Transformers": [],
+  "Identities": []
+}
+```
+
+_Note: Truncated for brevity._
