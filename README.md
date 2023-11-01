@@ -133,9 +133,15 @@ See https://ravendb.net/docs/article-page/3.5/csharp/studio/accessing-studio.
 
 ### Raven 5.4
 
+#### Management Studio
+
 Navigate to http://localhost:8080/studio/index.html#databases/tasks/exportDatabase?&database=Mobile and click `Export Databases`.
 
 Click `Advanced > Export all collections` if you want to export a single collection.
+
+#### Code
+
+Use the [Smuggler](https://ravendb.net/docs/article-page/5.4/csharp/client-api/smuggler/what-is-smuggler#example) utility.
 
 To view the output you can extract the dump file to JSON:
 
@@ -202,13 +208,27 @@ To view the output you can extract the dump file to JSON:
 
 ### Raven 3.5
 
+#### Management Studio
+
 See https://ravendb.net/docs/article-page/3.5/csharp/file-system/studio/tasks/export-and-import-views.
 
 Go to `Databases > Mobile > Tasks > Export Database`.
 
 Select `Advanced > Collections > Specified collections only` if you want to export specific collections.
 
-To view the output you can extract the dump file to JSON:
+##### CLI
+
+Use the [Smuggler](https://ravendb.net/docs/article-page/3.5/csharp/server/administration/exporting-and-importing-data) utility.
+
+_Note: You now need to separately download the `Tools` package._
+
+Run command:
+
+```shell
+Raven.Smuggler out http://localhost:8080 raven.dump --operate-on-types=Documents --database="Mobile" --batch-size=1024 --excludeexpired --metadata-filter=Raven-Entity-Name="MobileDevices"
+```
+
+To view the output you can extract the `raven.dump` file to JSON:
 
 ```json
 {
