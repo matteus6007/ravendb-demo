@@ -6,10 +6,13 @@ using Raven35.Changes.Subscription.Domain.Models;
 using Raven35.Changes.Subscription.Domain.Options;
 using Raven35.Changes.Subscription.Infrastructure;
 using Raven35.Changes.Subscription.Infrastructure.Observers;
+using System;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
 builder.Services.AddSingleton(services => new DocumentStoreManager(new RavenOptions()).Store);
+builder.Services.AddSingleton<IObserver<DocumentChangeNotification>, DocumentChangeNotificationObserver>();
+builder.Services.AddSingleton<IObserver<MobileDevice>, MobileDeviceObserver>();
 builder.Services.AddSingleton<IObserverFactory, ObserverFactory>();
 builder.Services.AddSingleton<ISubscriptionManager, DataSubscriptionsManager>();
 builder.Services.AddSingleton<ISubscriptionManager, ChangesSubscriptionManager>();
@@ -26,10 +29,6 @@ static void StartApplication(IServiceProvider hostProvider, string[] args)
     using IServiceScope serviceScope = hostProvider.CreateScope();
     IServiceProvider provider = serviceScope.ServiceProvider;
 
-    var observerFactory = provider.GetService<IObserverFactory>();
-
-    observerFactory?.Register();
-
     var subscriptionManagerFactory = provider.GetService<ISubscriptionManagerFactory>();
 
     // TODO: add to appsettings
@@ -37,11 +36,9 @@ static void StartApplication(IServiceProvider hostProvider, string[] args)
 
     if (subscriptionManagerFactory != null && args.Length > 0)
     {
-        ISubscriptionManager subscriptionManager;
-
         if (Enum.TryParse(args[0], true, out SubscriptionType subscriptionType))
         {
-            subscriptionManager = subscriptionManagerFactory.LoadSubscriptionManager(subscriptionType);
+            var subscriptionManager = subscriptionManagerFactory.LoadSubscriptionManager(subscriptionType);
 
             if (subscriptionType == SubscriptionType.Changes)
             {
