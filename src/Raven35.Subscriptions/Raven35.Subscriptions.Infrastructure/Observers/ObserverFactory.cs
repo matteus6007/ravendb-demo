@@ -23,7 +23,7 @@ namespace Raven35.Changes.Subscription.Infrastructure.Observers
         public void Register()
         {
             AddObserver(new DocumentChangeNotificationObserver(_store));
-            AddObserver(new MobileDeviceObserver());
+            AddObserver(new MobileDeviceObserver(_store));
         }
 
         public IObserver<T>? TryLoadObserver<T>()

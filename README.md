@@ -333,3 +333,32 @@ Run test app to listen to changes to `MobileDevices` collection:
 ```shell
 dotnet run --project .\src\Raven35.Subscriptions\Raven35.Subscriptions.ConsoleApp\Raven35.Subscriptions.ConsoleApp.csproj Data
 ```
+
+Get list of subscriptions for `Mobile` database:
+
+```shell
+curl http://localhost:8080/databases/Mobile/subscriptions
+```
+
+Outputs:
+
+```json
+[
+    {
+        "SubscriptionId": 1,
+        "Criteria": {
+            "KeyStartsWith": null,
+            "StartEtag": "01000000-0000-0001-0000-000000000002",
+            "BelongsToAnyCollection": [
+                "MobileDevices"
+            ],
+            "PropertiesMatch": null,
+            "PropertiesNotMatch": null
+        },
+        "AckEtag": "01000000-0000-0008-0000-000000000001",
+        "TimeOfSendingLastBatch": "2023-11-14T10:56:46.9358120Z",
+        "TimeOfLastAcknowledgment": "2023-11-14T10:56:47.0182839Z",
+        "TimeOfLastClientActivity": "2023-11-14T10:56:57.3034535Z"
+    }
+]
+```
