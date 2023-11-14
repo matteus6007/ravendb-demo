@@ -1,21 +1,24 @@
 # RavenDB Demo
 
-Demo for exporting data from a Raven Database.
+Demo for managing data in a Raven Database.
 
-* Installation
-  * [Raven 5.4](#installation-raven-54)
+* Raven 5.4
+  * [Installation](#installation-raven-54)
     * [Docker](#docker)
     * [Docker Compose](#docker-compose)
-  * [Raven 3.5](#installation-raven-35)
-* Admin
-  * [Raven 5.4](#admin-raven-54)
+  * [Admin](#admin-raven-54)
     * [Bootstrap Cluster](#bootstrap-cluster)
     * [Create Database](#create-database)
     * [Create Collection](#create-collection)
-  * [Raven 3.5](#admin-raven-35)
-* [Export Data](#export-data)
-  * [Raven 5.4](#raven-54)
-  * [Raven 3.5](#raven-35)
+  * [Export Data](#export-data-raven-54)
+  * [Changes API](#changes-api-raven-54)
+  * [Data Subscriptions](#data-subscriptions-raven-54)
+* Raven 3.5
+  * [Installation](#installation-raven-35)
+  * [Admin](#admin-raven-35)
+  * [Export Data](#export-data-raven-35)
+  * [Changes API](#changes-api-raven-35)
+  * [Data Subscriptions](#data-subscriptions-raven-35)
 
 ## Installation: Raven 5.4
 
@@ -76,6 +79,12 @@ You can access RavenDB instance on `http://localhost:8080`.
 
 Download latest stable release from https://ravendb.net/download.
 
+Running RavenDB version `3.5` locally running on port `8080`:
+
+```shell
+<path_to_ravendb>/Server/Raven.Server.exe
+```
+
 You can access RavenDB instance on `http://localhost:8080`.
 
 ## Admin: Raven 5.4
@@ -129,17 +138,15 @@ This will create the collection if it does not already exist, or add the documen
 
 See https://ravendb.net/docs/article-page/3.5/csharp/studio/accessing-studio.
 
-## Export Data
+## Export Data: Raven 5.4
 
-### Raven 5.4
-
-#### Management Studio
+### Management Studio
 
 Navigate to http://localhost:8080/studio/index.html#databases/tasks/exportDatabase?&database=Mobile and click `Export Databases`.
 
 Click `Advanced > Export all collections` if you want to export a single collection.
 
-#### Code
+### Code
 
 Use the [Smuggler](https://ravendb.net/docs/article-page/5.4/csharp/client-api/smuggler/what-is-smuggler#example) utility.
 
@@ -206,9 +213,9 @@ To view the output you can extract the dump file to JSON:
 }
 ```
 
-### Raven 3.5
+## Export Data: Raven 3.5
 
-#### Management Studio
+### Management Studio
 
 See https://ravendb.net/docs/article-page/3.5/csharp/file-system/studio/tasks/export-and-import-views.
 
@@ -216,7 +223,7 @@ Go to `Databases > Mobile > Tasks > Export Database`.
 
 Select `Advanced > Collections > Specified collections only` if you want to export specific collections.
 
-##### CLI
+### CLI
 
 Use the [Smuggler](https://ravendb.net/docs/article-page/3.5/csharp/server/administration/exporting-and-importing-data) utility.
 
@@ -267,3 +274,62 @@ To view the output you can extract the `raven.dump` file to JSON:
 ```
 
 _Note: Truncated for brevity._
+
+## Changes API
+
+Subscribe to document changes.
+
+_Note: the change doesn't include current state only the ID and Collection Name, you need to load the document to view the latest version._
+
+### Changes API: Raven 5.4
+
+https://ravendb.net/docs/article-page/5.4/csharp/client-api/changes/how-to-subscribe-to-document-changes
+
+Returns the following information:
+
+* `Type` - type of change such as `PUT` or `DELETE`
+* `Id` - document identifier
+* `CollectionName` - document's collection name
+* `TypeName` - type name
+* `ChangeVector` - document change vector
+
+### Changes API: Raven 3.5
+
+https://ravendb.net/docs/article-page/3.5/csharp/client-api/changes/how-to-subscribe-to-document-changes
+
+Returns the following information:
+
+* `Type` - type of change such as `PUT` or `DELETE`
+* `Id` - document identifier
+* `CollectionName` - document's collection name
+* `TypeName` - type name  _(always seems to be null)_
+* `Etag` - etag
+* `Message` - notification payload _(always seems to be null)_
+
+Run test app to listen to changes to `MobileDevices` collection:
+
+```shell
+dotnet run --project .\src\Raven35.Subscriptions\Raven35.Subscriptions.ConsoleApp\Raven35.Subscriptions.ConsoleApp.csproj Changes
+```
+
+## Data Subscriptions
+
+Data subscriptions provide a reliable and handy way to retrieve documents from the database for processing purposes by application jobs.
+
+Returns batches of `RavenJObject` or type `T` objects.
+
+_Note: No way to determine type of change, it is merely the current state of the document._
+
+### Data Subscriptions: Raven 5.4
+
+https://ravendb.net/docs/article-page/5.4/csharp/client-api/data-subscriptions/what-are-data-subscriptions
+
+### Data Subscriptions: Raven 3.5
+
+https://ravendb.net/docs/article-page/3.5/csharp/client-api/data-subscriptions/what-are-data-subscriptions
+
+Run test app to listen to changes to `MobileDevices` collection:
+
+```shell
+dotnet run --project .\src\Raven35.Subscriptions\Raven35.Subscriptions.ConsoleApp\Raven35.Subscriptions.ConsoleApp.csproj Data
+```
