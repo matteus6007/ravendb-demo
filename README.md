@@ -293,6 +293,12 @@ Returns the following information:
 * `TypeName` - type name
 * `ChangeVector` - document change vector
 
+Run test app to listen to changes to `MobileDevices` collection:
+
+```shell
+dotnet run --project .\src\Raven54.Subscriptions\Raven54.Subscriptions.ConsoleApp\Raven54.Subscriptions.ConsoleApp.csproj Changes
+```
+
 ### Changes API: Raven 3.5
 
 https://ravendb.net/docs/article-page/3.5/csharp/client-api/changes/how-to-subscribe-to-document-changes
@@ -303,7 +309,7 @@ Returns the following information:
 * `Id` - document identifier
 * `CollectionName` - document's collection name
 * `TypeName` - type name  _(always seems to be null)_
-* `Etag` - etag
+* `Etag` - document etag
 * `Message` - notification payload _(always seems to be null)_
 
 Run test app to listen to changes to `MobileDevices` collection:
@@ -323,6 +329,45 @@ _Note: No way to determine type of change, it is merely the current state of the
 ### Data Subscriptions: Raven 5.4
 
 https://ravendb.net/docs/article-page/5.4/csharp/client-api/data-subscriptions/what-are-data-subscriptions
+
+Run test app to listen to changes to `MobileDevices` collection:
+
+```shell
+dotnet run --project .\src\Raven54.Subscriptions\Raven54.Subscriptions.ConsoleApp\Raven54.Subscriptions.ConsoleApp.csproj Data
+```
+
+Get list of subscriptions for `Mobile` database:
+
+```shell
+curl http://localhost:8080/databases/Mobile/subscriptions
+```
+
+Outputs:
+
+```json
+{
+    "@metadata": {
+        "DateTime": "2023-11-15T09:14:24.7771315Z",
+        "WebUrl": "http://29135d7df34b:8080",
+        "NodeTag": "A"
+    },
+    "Results": [
+        {
+            "SubscriptionId": 1,
+            "SubscriptionName": "mobiledevices_subscription",
+            "ChangeVectorForNextBatchStartingPoint": "A:4-5EXQtVvs/0iAtFo6Ua9Cnw",
+            "Query": "from MobileDevices",
+            "Disabled": false,
+            "LastClientConnectionTime": "2023-11-15T09:12:58.2472242Z",
+            "LastBatchAckTime": "2023-11-14T16:49:46.4182762Z",
+            "Connections": [],
+            "RecentConnections": [],
+            "RecentRejectedConnections": [],
+            "CurrentPendingConnections": []
+        }
+    ]
+}
+```
 
 ### Data Subscriptions: Raven 3.5
 

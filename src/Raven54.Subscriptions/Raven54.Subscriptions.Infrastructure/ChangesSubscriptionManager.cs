@@ -1,18 +1,17 @@
-﻿using Raven.Abstractions.Data;
-using Raven.Client;
-using Raven35.Changes.Subscription.Domain.Models;
-using System;
+﻿using Raven.Client.Documents;
+using Raven.Client.Documents.Changes;
+using Raven54.Subscriptions.Domain.Models;
 
-namespace Raven35.Changes.Subscription.Infrastructure
+namespace Raven54.Subscriptions.Infrastructure
 {
     public class ChangesSubscriptionManager : ISubscriptionManager
     {
         private readonly IDocumentStore _store;
-        private readonly IObserver<DocumentChangeNotification> _observer;
+        private readonly IObserver<DocumentChange> _observer;
 
         public ChangesSubscriptionManager(
             IDocumentStore store,
-            IObserver<DocumentChangeNotification> observer)
+            IObserver<DocumentChange> observer)
         {
             _store = store;
             _observer = observer;
@@ -20,8 +19,10 @@ namespace Raven35.Changes.Subscription.Infrastructure
 
         public SubscriptionType SubscriptionType => SubscriptionType.Changes;
 
-        public bool TrySubscribeToDocumentChanges<T>(string collectionName) where T : class
+        public async Task<bool> TrySubscribeToDocumentChangesAsync<T>(string collectionName, CancellationToken ct = default) where T : class
         {
+            await Task.CompletedTask;
+
             _store
                 .Changes()
                 .ForDocumentsInCollection(collectionName)

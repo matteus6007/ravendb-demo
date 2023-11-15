@@ -1,29 +1,27 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Raven.Abstractions.Data;
-using Raven35.Changes.Subscription.Domain.Models;
-using Raven35.Changes.Subscription.Domain.Options;
-using Raven35.Changes.Subscription.Infrastructure;
-using Raven35.Changes.Subscription.Infrastructure.Observers;
+using Raven.Client.Documents.Changes;
+using Raven54.Subscriptions.Domain.Models;
+using Raven54.Subscriptions.Domain.Options;
+using Raven54.Subscriptions.Infrastructure;
+using Raven54.Subscriptions.Infrastructure.Observers;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
 builder.Services.AddSingleton(services => new DocumentStoreManager(new RavenOptions()).Store);
-builder.Services.AddSingleton<IObserver<DocumentChangeNotification>, DocumentChangeNotificationObserver>();
-builder.Services.AddSingleton<IObserver<MobileDevice>, MobileDeviceObserver>();
-builder.Services.AddSingleton<IObserverFactory, ObserverFactory>();
-builder.Services.AddSingleton<ISubscriptionManager, DataSubscriptionsManager>();
+builder.Services.AddSingleton<IObserver<DocumentChange>, DocumentChangeObserver>();
 builder.Services.AddSingleton<ISubscriptionManager, ChangesSubscriptionManager>();
+builder.Services.AddSingleton<ISubscriptionManager, DataSubscriptionsManager>();
 builder.Services.AddSingleton<ISubscriptionManagerFactory, SubscriptionManagerFactory>();
 
 using IHost host = builder.Build();
 
-StartApplication(host.Services, args);
+await StartApplication(host.Services, args);
 
 await host.RunAsync();
 
-static void StartApplication(IServiceProvider hostProvider, string[] args)
+static async Task StartApplication(IServiceProvider hostProvider, string[] args)
 {
     using IServiceScope serviceScope = hostProvider.CreateScope();
     IServiceProvider provider = serviceScope.ServiceProvider;
@@ -48,11 +46,13 @@ static void StartApplication(IServiceProvider hostProvider, string[] args)
 
             if (subscriptionType == SubscriptionType.Changes)
             {
-                subscriptionManager.TrySubscribeToDocumentChanges<DocumentChangeNotification>(collectionName);
+                await subscriptionManager.TrySubscribeToDocumentChangesAsync<DocumentChange>(collectionName);
             }
             else
             {
-                subscriptionManager.TrySubscribeToDocumentChanges<MobileDevice>(collectionName);
+                var cancellationToken = new CancellationTokenSource();
+
+                await subscriptionManager.TrySubscribeToDocumentChangesAsync<MobileDevice>(collectionName, cancellationToken.Token).ConfigureAwait(false);
             }
         }
         else

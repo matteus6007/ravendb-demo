@@ -1,23 +1,22 @@
-﻿using Raven.Abstractions.Data;
-using Raven.Client;
-using Raven35.Changes.Subscription.Domain.Models;
-using System;
+﻿using Raven.Client.Documents;
+using Raven.Client.Documents.Changes;
+using Raven54.Subscriptions.Domain.Models;
 using System.Text.Json;
 
-namespace Raven35.Changes.Subscription.Infrastructure.Observers
+namespace Raven54.Subscriptions.Infrastructure.Observers
 {
-    public class DocumentChangeNotificationObserver : IObserver<DocumentChangeNotification>
+    public class DocumentChangeObserver : IObserver<DocumentChange>
     {
         private readonly IDocumentStore _store;
 
-        public DocumentChangeNotificationObserver(IDocumentStore store)
+        public DocumentChangeObserver(IDocumentStore store)
         {
             _store = store;
         }
 
         public void OnCompleted()
         {
-            Console.WriteLine("{0} completed", typeof(DocumentChangeNotificationObserver));
+            Console.WriteLine("{0} completed", typeof(DocumentChangeObserver));
         }
 
         public void OnError(Exception error)
@@ -25,7 +24,7 @@ namespace Raven35.Changes.Subscription.Infrastructure.Observers
             Console.Write(error.ToString());
         }
 
-        public void OnNext(DocumentChangeNotification value)
+        public void OnNext(DocumentChange value)
         {
             Console.WriteLine("{0} on document {1}", value.Type, value.Id);
 
@@ -36,7 +35,7 @@ namespace Raven35.Changes.Subscription.Infrastructure.Observers
 
                 if (mobileDevice != null)
                 {
-                    Console.WriteLine("{0} change: {1}", typeof(DocumentChangeNotificationObserver), JsonSerializer.Serialize(mobileDevice));
+                    Console.WriteLine("{0} change: {1}", typeof(DocumentChangeObserver), JsonSerializer.Serialize(mobileDevice));
                 }
             }
         }
