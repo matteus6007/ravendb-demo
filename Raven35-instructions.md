@@ -92,8 +92,6 @@ _Note: Truncated for brevity._
 
 [Changes API](https://ravendb.net/docs/article-page/3.5/csharp/client-api/changes/how-to-subscribe-to-document-changes) is a Push Notification service, that allows a client to subscribe to document changes.
 
-Subscribe to document changes.
-
 _Note: the change doesn't include current state only the ID and Collection Name, you need to load the document to view the latest version._
 
 Returns the following information:
