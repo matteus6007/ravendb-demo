@@ -16,14 +16,14 @@ namespace Raven35.Changes.Subscription.Infrastructure.Observers
 
         public void OnCompleted()
         {
-            // release all subscriptions
+            // release all subscriptions, required if using OpenIfFree strategy
             // note: dangerous as other applications may be using subscriptions
-            var configs = _store.Subscriptions.GetSubscriptions(0, 10);
+            //var configs = _store.Subscriptions.GetSubscriptions(0, 10);
 
-            foreach (var config in configs)
-            {
-                _store.Subscriptions.Release(config.SubscriptionId);
-            }
+            //foreach (var config in configs)
+            //{
+            //    _store.Subscriptions.Release(config.SubscriptionId);
+            //}
 
             Console.WriteLine("{0} completed", typeof(MobileDeviceObserver));
         }

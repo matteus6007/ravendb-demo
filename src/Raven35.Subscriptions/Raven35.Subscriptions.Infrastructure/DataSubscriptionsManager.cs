@@ -66,7 +66,8 @@ namespace Raven35.Changes.Subscription.Infrastructure
                     AcknowledgmentTimeout = TimeSpan.FromMinutes(3)
                 },
                 IgnoreSubscribersErrors = false,
-                ClientAliveNotificationInterval = TimeSpan.FromSeconds(30)
+                ClientAliveNotificationInterval = TimeSpan.FromSeconds(60),
+                Strategy = SubscriptionOpeningStrategy.TakeOver
             };
 
             var data = _store.Subscriptions.Open<T>(subscriptionId, options);

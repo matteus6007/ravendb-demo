@@ -12,6 +12,9 @@ Demo for managing data in a Raven `5.4` Database.
 * [Export Data](#export-data)
 * [Changes API](#changes-api)
 * [Data Subscriptions](#data-subscriptions)
+  * [Creation Options](#creation-options)
+  * [Strategies](#strategies)
+  * [Running the Application](#running-the-application)
 
 ## Installation
 
@@ -218,7 +221,36 @@ Returns batches of `RavenJObject` or type `T` objects.
 
 _Note: No way to determine type of change, it is merely the current state of the document._
 
-Run test app to listen to changes to `MobileDevices` collection:
+### Creation Options
+
+Define a `SubscriptionCreationOptions` with the following parameters:
+
+* `Name` - user defined name of the subscription _(must be unique)_
+* `Query` _(required)_ - [RQL](https://ravendb.net/docs/article-page/5.4/csharp/client-api/session/querying/what-is-rql) query that describes the subscription
+* `ChangeVector` - 	allows to define a change vector, from which the subscription will start processing
+* `MentorNode` - allows to define a specific node in the cluster that we want to treat the subscription
+
+Or, define a `SubscriptionCreationOptions<T>` with the following parameters:
+
+* `Name` - user defined name of the subscription _(must be unique)_
+* `Filter` - lambda describing filter logic for the subscription
+* `Projection` - lambda describing the projection of returned documents
+* `Includes` -  define an include clause for the subscription
+* `ChangeVector` - 	allows to define a change vector, from which the subscription will start processing
+* `MentorNode` - allows to define a specific node in the cluster that we want to treat the subscription
+
+_Note: `Query` defined as `from 'MobileDevices' as doc`._
+
+### Strategies
+
+* `OpenIfFree` _(default)_ - open a subscription only if there isn't any other currently connected client, throws `SubscriptionInUseException` if there is an open connection
+* `TakeOver` - allow an incoming connection to overthrow an existing one, if existing connection has a `TakeOver` strategy the incoming connection throws `SubscriptionInUseException`
+* `WaitForFree` - if there is an open connection, waits for connection to be disconnected _(active/passive)_
+* `Concurrent` - multiple workers for the same subscription are allowed to connect simultaneously
+
+### Running the Application
+
+Run test app to listen to changes to `MobileDevices` collection using the `TakeOver` strategy:
 
 ```shell
 dotnet run --project .\src\Raven54.Subscriptions\Raven54.Subscriptions.ConsoleApp\Raven54.Subscriptions.ConsoleApp.csproj Data
@@ -244,7 +276,7 @@ Outputs:
             "SubscriptionId": 1,
             "SubscriptionName": "mobiledevices_subscription",
             "ChangeVectorForNextBatchStartingPoint": "A:4-5EXQtVvs/0iAtFo6Ua9Cnw",
-            "Query": "from MobileDevices",
+            "Query": "from 'MobileDevices' as doc",
             "Disabled": false,
             "LastClientConnectionTime": "2023-11-15T09:12:58.2472242Z",
             "LastBatchAckTime": "2023-11-14T16:49:46.4182762Z",
@@ -255,4 +287,4 @@ Outputs:
         }
     ]
 }
-```
+``` 

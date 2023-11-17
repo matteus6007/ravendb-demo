@@ -5,6 +5,7 @@ using Raven.Client.Documents.Changes;
 using Raven54.Subscriptions.Domain.Models;
 using Raven54.Subscriptions.Domain.Options;
 using Raven54.Subscriptions.Infrastructure;
+using Raven54.Subscriptions.Infrastructure.DocumentProcessors;
 using Raven54.Subscriptions.Infrastructure.Observers;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
@@ -14,6 +15,8 @@ builder.Services.AddSingleton<IObserver<DocumentChange>, DocumentChangeObserver>
 builder.Services.AddSingleton<ISubscriptionManager, ChangesSubscriptionManager>();
 builder.Services.AddSingleton<ISubscriptionManager, DataSubscriptionsManager>();
 builder.Services.AddSingleton<ISubscriptionManagerFactory, SubscriptionManagerFactory>();
+builder.Services.AddSingleton<IDocumentProcessorFactory, DocumentProcessorFactory>();
+builder.Services.AddSingleton<IDocumentProcessor<MobileDevice>, MobileDeviceProcessor>();
 
 using IHost host = builder.Build();
 

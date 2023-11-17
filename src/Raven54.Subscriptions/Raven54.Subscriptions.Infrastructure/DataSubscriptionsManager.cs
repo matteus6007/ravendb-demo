@@ -1,18 +1,21 @@
 ﻿using Raven.Client.Documents;
 using Raven.Client.Documents.Subscriptions;
 using Raven54.Subscriptions.Domain.Models;
-using System.Text.Json;
+using Raven54.Subscriptions.Infrastructure.DocumentProcessors;
 
 namespace Raven54.Subscriptions.Infrastructure
 {
     public class DataSubscriptionsManager : ISubscriptionManager
     {
         private readonly IDocumentStore _store;
+        private readonly IDocumentProcessorFactory _documentProcessorFactory;
 
         public DataSubscriptionsManager(
-            IDocumentStore store)
+            IDocumentStore store,
+            IDocumentProcessorFactory documentProcessorFactory)
         {
             _store = store;
+            _documentProcessorFactory = documentProcessorFactory;
         }
 
         public SubscriptionType SubscriptionType => SubscriptionType.Data;
@@ -25,7 +28,7 @@ namespace Raven54.Subscriptions.Infrastructure
 
             var subscriptionName = subscriptionState != null
                 ? subscriptionState.SubscriptionName
-                : await CreateDataSubscription(collectionName, ct);
+                : await CreateDataSubscription<T>(collectionName, ct);
 
             await RunWorker<T>(subscriptionName, ct).ConfigureAwait(false);
 
@@ -34,22 +37,25 @@ namespace Raven54.Subscriptions.Infrastructure
 
         private async Task<SubscriptionState?> GetDataSubscription(string collectionName, CancellationToken ct)
         {
-            var subscription = await _store.Subscriptions.GetSubscriptionStateAsync(SubscriptionName(collectionName), token: ct).ConfigureAwait(false);
+            var subscriptions = await _store.Subscriptions.GetSubscriptionsAsync(0, 10, token: ct).ConfigureAwait(false);
 
-            if (subscription != null)
+            var subscriptionState = subscriptions.FirstOrDefault(x => x.SubscriptionName.Equals(SubscriptionName(collectionName)));
+
+            if (subscriptionState == null)
             {
-                Console.WriteLine("Found existing subscription {0} for '{1}'", subscription.SubscriptionId, subscription.SubscriptionName);
+                return null;
             }
+                
+            Console.WriteLine("Found existing subscription {0} for '{1}'", subscriptionState.SubscriptionId, subscriptionState.SubscriptionName);
 
-            return subscription;
+            return subscriptionState;
         }
 
-        private async Task<string> CreateDataSubscription(string collectionName, CancellationToken ct)
+        private async Task<string> CreateDataSubscription<T>(string collectionName, CancellationToken ct)
         {
-            var options = new SubscriptionCreationOptions
+            var options = new SubscriptionCreationOptions<T>
             {
-                Name = SubscriptionName(collectionName),
-                Query = $"from {collectionName}"
+                Name = SubscriptionName(collectionName)
             };
 
             var subscriptionName = await _store.Subscriptions.CreateAsync(options, token: ct).ConfigureAwait(false);
@@ -71,20 +77,9 @@ namespace Raven54.Subscriptions.Infrastructure
 
             var subscriptionWorker = _store.Subscriptions.GetSubscriptionWorker<T>(options);
 
-            _ = subscriptionWorker.Run(async batch => await ProcessDocuments(batch).ConfigureAwait(false), cancellationToken);
+            _ = subscriptionWorker.Run(async batch => await _documentProcessorFactory.ProcessDocumentsAsync(batch).ConfigureAwait(false), cancellationToken);
 
             Console.WriteLine("Listening to changes for subscription '{0}' for type '{1}'", subscriptionName, typeof(T));
-
-            return Task.CompletedTask;
-        }
-
-        private static Task ProcessDocuments<T>(SubscriptionBatch<T> batch) where T : class
-        {
-            batch.Items.ForEach(item =>
-            {
-                // can either use Result (type of T) or RawResult (JSON)
-                Console.WriteLine("{0} change: {1}", typeof(T), JsonSerializer.Serialize(item.Result));
-            });
 
             return Task.CompletedTask;
         }

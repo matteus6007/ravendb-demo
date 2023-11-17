@@ -9,6 +9,9 @@ Demo for managing data in a Raven `3.5` Database.
   * [CLI](#cli)
 * [Changes API](#changes-api)
 * [Data Subscriptions](#data-subscriptions)
+  * [Criteria](#criteria)
+  * [Strategies](#strategies)
+  * [Running the Application](#running-the-application)
 
 ## Installation
 
@@ -117,7 +120,26 @@ Returns batches of `RavenJObject` or type `T` objects.
 
 _Note: No way to determine type of change, it is merely the current state of the document._
 
-Run test app to listen to changes to `MobileDevices` collection:
+### Criteria
+
+Define a `SubscriptionCriteria` or `SubscriptionCriteria<T>` with the following optional filters:
+
+* `KeyStartsWith` - a document id must starts with a specified prefix
+* `BelongsToAnyCollection` - list of collections that the subscription deals with - _note: implied for `SubscriptionCriteria<T>`_
+* `PropertiesMatch` - dictionary of field names and related values that a document must have
+* `PropertiesNotMatch` - dictionary of field names and related values that a document must not have
+* `StartEtag` - an etag of a document which a subscription is going to consider as already acknowledged and start processing docs with higher etags
+
+### Strategies
+
+* `OpenIfFree` _(default)_ - open a subscription only if there isn't any other currently connected client, throws `SubscriptionInUseException` if there is an open connection
+* `TakeOver` - successfully open a subscription even if there is another currently connected client, open connection will be closed
+* `ForceAndKeep` - keeps connection until another client with `ForceAndKeep` requests access
+* `WaitForFree` - if there is an open connection, waits for connection to be disconnected
+
+### Running the Application
+
+Run test app to listen to changes to `MobileDevices` collection using the `TakeOver` strategy:
 
 ```shell
 dotnet run --project .\src\Raven35.Subscriptions\Raven35.Subscriptions.ConsoleApp\Raven35.Subscriptions.ConsoleApp.csproj Data
