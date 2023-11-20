@@ -219,7 +219,7 @@ dotnet run --project .\src\Raven54.Subscriptions\Raven54.Subscriptions.ConsoleAp
 
 Returns batches of `RavenJObject` or type `T` objects.
 
-_Note: No way to determine type of change, it is merely the current state of the document._
+_Note: No way to determine type of change, it is merely the current state of the document, so you cannot subscribe to document deletions. However, you can use the [Changes API](#changes-api) to subscribe to document delete notifications._
 
 ### Creation Options
 

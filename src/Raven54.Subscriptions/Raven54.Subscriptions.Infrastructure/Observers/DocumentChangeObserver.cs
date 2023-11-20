@@ -26,6 +26,13 @@ namespace Raven54.Subscriptions.Infrastructure.Observers
 
         public void OnNext(DocumentChange value)
         {
+            if (value.Type == DocumentChangeTypes.Delete)
+            {
+                Console.WriteLine("Document {0} deleted", value.Id);
+
+                return;
+            }
+
             Console.WriteLine("{0} on document {1}", value.Type, value.Id);
 
             using (var session = _store.OpenSession())
