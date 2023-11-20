@@ -210,7 +210,7 @@ Returns the following information:
 Run test app to listen to changes to `MobileDevices` collection:
 
 ```shell
-dotnet run --project .\src\Raven54.Subscriptions\Raven54.Subscriptions.ConsoleApp\Raven54.Subscriptions.ConsoleApp.csproj Changes
+dotnet run --project .\src\Raven54.Subscriptions\Raven54.Subscriptions.ConsoleApp\Raven54.Subscriptions.ConsoleApp.csproj --subscription-type Changes
 ```
 
 ## Data Subscriptions
@@ -253,7 +253,7 @@ _Note: `Query` defined as `from 'MobileDevices' as doc`._
 Run test app to listen to changes to `MobileDevices` collection using the `TakeOver` strategy:
 
 ```shell
-dotnet run --project .\src\Raven54.Subscriptions\Raven54.Subscriptions.ConsoleApp\Raven54.Subscriptions.ConsoleApp.csproj Data
+dotnet run --project .\src\Raven54.Subscriptions\Raven54.Subscriptions.ConsoleApp\Raven54.Subscriptions.ConsoleApp.csproj --subscription-type Data
 ```
 
 Get list of subscriptions for `Mobile` database:

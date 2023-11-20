@@ -1,7 +1,9 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Raven.Client.Documents.Changes;
+using Raven54.Subscriptions.ConsoleApp.Options;
 using Raven54.Subscriptions.Domain.Models;
 using Raven54.Subscriptions.Domain.Options;
 using Raven54.Subscriptions.Infrastructure;
@@ -9,6 +11,10 @@ using Raven54.Subscriptions.Infrastructure.DocumentProcessors;
 using Raven54.Subscriptions.Infrastructure.Observers;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+
+builder.Configuration
+    .AddCommandLine(args, ApplicationOptions.Mappings)
+    .Build();
 
 builder.Services.AddSingleton(services => new DocumentStoreManager(new RavenOptions()).Store);
 builder.Services.AddSingleton<IObserver<DocumentChange>, DocumentChangeObserver>();
@@ -20,47 +26,41 @@ builder.Services.AddSingleton<IDocumentProcessor<MobileDevice>, MobileDeviceProc
 
 using IHost host = builder.Build();
 
-await StartApplication(host.Services, args);
+await StartApplication(host.Services, builder.Configuration);
 
 await host.RunAsync();
 
-static async Task StartApplication(IServiceProvider hostProvider, string[] args)
+static async Task StartApplication(IServiceProvider hostProvider, IConfiguration configuration)
 {
     using IServiceScope serviceScope = hostProvider.CreateScope();
     IServiceProvider provider = serviceScope.ServiceProvider;
 
-    var subscriptionManagerFactory = provider.GetService<ISubscriptionManagerFactory>();
+    if (provider.GetService<ISubscriptionManagerFactory>() is not ISubscriptionManagerFactory subscriptionManagerFactory)
+    {
+        Console.WriteLine("No '{0}' found", typeof(ISubscriptionManagerFactory));
 
-    // TODO: add to appsettings
+        return;
+    }
+
     const string collectionName = "MobileDevices";
 
-    if (subscriptionManagerFactory != null && args.Length > 0)
+    var options = configuration.Get<ApplicationOptions>() ?? new ApplicationOptions();
+
+    if (subscriptionManagerFactory.LoadSubscriptionManager(options.SubscriptionType) is not ISubscriptionManager subscriptionManager)
     {
-        if (Enum.TryParse(args[0], true, out SubscriptionType subscriptionType))
-        {
-            var subscriptionManager = subscriptionManagerFactory.LoadSubscriptionManager(subscriptionType);
+        Console.WriteLine("No '{0}' found for type '{1}'", typeof(ISubscriptionManager), options.SubscriptionType);
 
-            if (subscriptionManager == null)
-            {
-                Console.WriteLine("No '{0}' found for type '{1}'", typeof(ISubscriptionManager), subscriptionType);
+        return;
+    }
 
-                return;
-            }
+    if (options.SubscriptionType == SubscriptionType.Changes)
+    {
+        await subscriptionManager.TrySubscribeToDocumentChangesAsync<DocumentChange>(collectionName);
+    }
+    else
+    {
+        var cancellationToken = new CancellationTokenSource();
 
-            if (subscriptionType == SubscriptionType.Changes)
-            {
-                await subscriptionManager.TrySubscribeToDocumentChangesAsync<DocumentChange>(collectionName);
-            }
-            else
-            {
-                var cancellationToken = new CancellationTokenSource();
-
-                await subscriptionManager.TrySubscribeToDocumentChangesAsync<MobileDevice>(collectionName, cancellationToken.Token).ConfigureAwait(false);
-            }
-        }
-        else
-        {
-            Console.WriteLine("Cannot parse '{0}' to '{1}'", args[0], typeof(SubscriptionType));
-        }
+        await subscriptionManager.TrySubscribeToDocumentChangesAsync<MobileDevice>(collectionName, cancellationToken.Token).ConfigureAwait(false);
     }
 }
