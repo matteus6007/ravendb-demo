@@ -2,7 +2,7 @@
   "profiles": {
     "Raven35.Changes.Subscription.Console": {
       "commandName": "Project",
-      "commandLineArgs": "Data"
+      "commandLineArgs": "--subscription-type Data"
     }
   }
 }

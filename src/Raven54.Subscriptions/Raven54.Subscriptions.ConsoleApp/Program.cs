@@ -42,8 +42,6 @@ static async Task StartApplication(IServiceProvider hostProvider, IConfiguration
         return;
     }
 
-    const string collectionName = "MobileDevices";
-
     var options = configuration.Get<ApplicationOptions>() ?? new ApplicationOptions();
 
     if (subscriptionManagerFactory.LoadSubscriptionManager(options.SubscriptionType) is not ISubscriptionManager subscriptionManager)
@@ -52,6 +50,8 @@ static async Task StartApplication(IServiceProvider hostProvider, IConfiguration
 
         return;
     }
+
+    const string collectionName = "MobileDevices";
 
     if (options.SubscriptionType == SubscriptionType.Changes)
     {

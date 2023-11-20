@@ -109,7 +109,7 @@ Returns the following information:
 Run test app to listen to changes to `MobileDevices` collection:
 
 ```shell
-dotnet run --project .\src\Raven35.Subscriptions\Raven35.Subscriptions.ConsoleApp\Raven35.Subscriptions.ConsoleApp.csproj Changes
+dotnet run --project .\src\Raven35.Subscriptions\Raven35.Subscriptions.ConsoleApp\Raven35.Subscriptions.ConsoleApp.csproj --subscription-type Changes
 ```
 
 ## Data Subscriptions
@@ -142,7 +142,7 @@ Define a `SubscriptionCriteria` or `SubscriptionCriteria<T>` with the following 
 Run test app to listen to changes to `MobileDevices` collection using the `TakeOver` strategy:
 
 ```shell
-dotnet run --project .\src\Raven35.Subscriptions\Raven35.Subscriptions.ConsoleApp\Raven35.Subscriptions.ConsoleApp.csproj Data
+dotnet run --project .\src\Raven35.Subscriptions\Raven35.Subscriptions.ConsoleApp\Raven35.Subscriptions.ConsoleApp.csproj --subscription-type Data
 ```
 
 Get list of subscriptions for `Mobile` database:
