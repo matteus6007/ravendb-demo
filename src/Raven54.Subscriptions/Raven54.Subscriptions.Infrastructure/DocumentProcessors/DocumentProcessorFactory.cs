@@ -13,8 +13,6 @@ namespace Raven54.Subscriptions.Infrastructure.DocumentProcessors
 
         public async Task ProcessDocumentsAsync<T>(SubscriptionBatch<T> batch)
         {
-            await Task.CompletedTask;
-
             if (_services.GetService(typeof(IDocumentProcessor<T>)) is not IDocumentProcessor<T> documentProcessor)
             {
                 return;

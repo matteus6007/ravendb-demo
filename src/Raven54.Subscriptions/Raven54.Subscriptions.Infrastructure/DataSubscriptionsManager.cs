@@ -24,18 +24,18 @@ namespace Raven54.Subscriptions.Infrastructure
 
         public async Task<bool> TrySubscribeToDocumentChangesAsync<T>(string collectionName, CancellationToken ct = default) where T : class
         {
-            var subscriptionState = await GetDataSubscription(collectionName, ct);
+            var subscriptionState = await GetDataSubscriptionAsync(collectionName, ct);
 
             var subscriptionName = subscriptionState != null
                 ? subscriptionState.SubscriptionName
-                : await CreateDataSubscription<T>(collectionName, ct);
+                : await CreateDataSubscriptionAsync<T>(collectionName, ct);
 
-            await RunWorker<T>(subscriptionName, ct).ConfigureAwait(false);
+            await RunWorkerAsync<T>(subscriptionName, ct).ConfigureAwait(false);
 
             return true;
         }
 
-        private async Task<SubscriptionState?> GetDataSubscription(string collectionName, CancellationToken ct)
+        private async Task<SubscriptionState?> GetDataSubscriptionAsync(string collectionName, CancellationToken ct)
         {
             var subscriptions = await _store.Subscriptions.GetSubscriptionsAsync(0, 10, token: ct).ConfigureAwait(false);
 
@@ -51,7 +51,7 @@ namespace Raven54.Subscriptions.Infrastructure
             return subscriptionState;
         }
 
-        private async Task<string> CreateDataSubscription<T>(string collectionName, CancellationToken ct)
+        private async Task<string> CreateDataSubscriptionAsync<T>(string collectionName, CancellationToken ct)
         {
             var options = new SubscriptionCreationOptions<T>
             {
@@ -65,7 +65,7 @@ namespace Raven54.Subscriptions.Infrastructure
             return subscriptionName;
         }
 
-        private Task RunWorker<T>(string subscriptionName, CancellationToken cancellationToken) where T : class
+        private Task RunWorkerAsync<T>(string subscriptionName, CancellationToken cancellationToken) where T : class
         {
             var options = new SubscriptionWorkerOptions(subscriptionName)
             {
