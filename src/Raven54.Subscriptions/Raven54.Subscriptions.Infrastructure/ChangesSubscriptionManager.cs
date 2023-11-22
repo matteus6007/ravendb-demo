@@ -28,7 +28,7 @@ namespace Raven54.Subscriptions.Infrastructure
                 .ForDocumentsInCollection(collectionName)
                 .Subscribe(_observer);
 
-            Console.WriteLine("Listening to changes for collection {0}", collectionName);
+            Console.WriteLine("Listening to changes for collection '{0}'", collectionName);
 
             return true;
         }

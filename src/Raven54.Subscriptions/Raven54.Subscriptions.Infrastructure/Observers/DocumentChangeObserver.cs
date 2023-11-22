@@ -33,16 +33,25 @@ namespace Raven54.Subscriptions.Infrastructure.Observers
                 return;
             }
 
-            Console.WriteLine("{0} on document {1}", value.Type, value.Id);
+            Console.WriteLine("{0} event: {1}", typeof(DocumentChange), JsonSerializer.Serialize(value));
 
             using (var session = _store.OpenSession())
             {
-                // TODO: work out which object to serialize
-                var mobileDevice = session.Load<MobileDevice>(value.Id);
-
-                if (mobileDevice != null)
+                switch (value.CollectionName.ToLowerInvariant())
                 {
-                    Console.WriteLine("{0} change: {1}", typeof(DocumentChangeObserver), JsonSerializer.Serialize(mobileDevice));
+                    case "mobiledevices":
+                            var mobileDevice = session.Load<MobileDevice>(value.Id);
+
+                            if (mobileDevice != null)
+                            {
+                                Console.WriteLine("{0} change: {1}", typeof(DocumentChangeObserver), JsonSerializer.Serialize(mobileDevice));
+                            }
+
+                        break;
+                    default:
+                        Console.WriteLine("Don't know how to map from collection '{0}'", value.CollectionName);
+
+                        break;
                 }
             }
         }
