@@ -1,4 +1,5 @@
-﻿using Raven.Client.Documents.Subscriptions;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Raven.Client.Documents.Subscriptions;
 
 namespace Raven54.Subscriptions.Infrastructure.DocumentProcessors
 {
@@ -11,9 +12,9 @@ namespace Raven54.Subscriptions.Infrastructure.DocumentProcessors
             _services = services;
         }
 
-        public async Task ProcessDocumentsAsync<T>(SubscriptionBatch<T> batch)
+        public async Task ProcessDocumentsAsync<T>(SubscriptionBatch<T> batch) where T : class
         {
-            if (_services.GetService(typeof(IDocumentProcessor<T>)) is not IDocumentProcessor<T> documentProcessor)
+            if (_services.GetService<IDocumentProcessor<T>>() is not IDocumentProcessor<T> documentProcessor)
             {
                 return;
             }

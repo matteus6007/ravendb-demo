@@ -80,12 +80,25 @@ namespace Raven54.Subscriptions.Infrastructure
             };
 
             var subscriptionWorker = _store.Subscriptions.GetSubscriptionWorker<T>(options);
+            subscriptionWorker.OnUnexpectedSubscriptionError += (exception) => _logger.LogError(exception, "Subscription worker failed for type '{documentType}'", typeof(T));
 
-            _ = subscriptionWorker.Run(async batch => await _documentProcessorFactory.ProcessDocumentsAsync(batch).ConfigureAwait(false), cancellationToken);
+            _ = subscriptionWorker.Run(async batch => await ProcessDocumentsAsync(batch).ConfigureAwait(false), cancellationToken);
 
             _logger.LogInformation("Listening to changes for subscription '{subscriptionName}' for type '{documentType}'", subscriptionName, typeof(T));
 
             return Task.CompletedTask;
+        }
+
+        private async Task ProcessDocumentsAsync<T>(SubscriptionBatch<T> batch) where T : class
+        {
+            try
+            {
+                await _documentProcessorFactory.ProcessDocumentsAsync(batch).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing subscription for type '{documentType}'", typeof(T));
+            }
         }
     }
 }

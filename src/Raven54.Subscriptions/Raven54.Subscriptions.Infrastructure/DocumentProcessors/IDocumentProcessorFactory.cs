@@ -4,6 +4,6 @@ namespace Raven54.Subscriptions.Infrastructure.DocumentProcessors
 {
     public interface IDocumentProcessorFactory
     {
-        Task ProcessDocumentsAsync<T>(SubscriptionBatch<T> batch);
+        Task ProcessDocumentsAsync<T>(SubscriptionBatch<T> batch) where T : class;
     }
 }

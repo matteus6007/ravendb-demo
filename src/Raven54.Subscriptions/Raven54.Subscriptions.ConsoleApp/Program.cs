@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Raven.Client.Documents.Changes;
+using Raven54.Subscriptions.ConsoleApp;
 using Raven54.Subscriptions.ConsoleApp.Options;
 using Raven54.Subscriptions.Domain.Models;
 using Raven54.Subscriptions.Domain.Options;
@@ -19,11 +20,11 @@ builder.Configuration
 
 builder.Services.AddSingleton(services => new DocumentStoreManager(new RavenOptions()).Store);
 builder.Services.AddSingleton<IObserver<DocumentChange>, DocumentChangeObserver>();
-builder.Services.AddSingleton<ISubscriptionManager, ChangesSubscriptionManager>();
-builder.Services.AddSingleton<ISubscriptionManager, DataSubscriptionsManager>();
+builder.Services.RegisterAllTypes<ISubscriptionManager>(new[] { typeof(ISubscriptionManager).Assembly }, ServiceLifetime.Singleton);
 builder.Services.AddSingleton<ISubscriptionManagerFactory, SubscriptionManagerFactory>();
 builder.Services.AddSingleton<IDocumentProcessorFactory, DocumentProcessorFactory>();
 builder.Services.AddSingleton<IDocumentProcessor<MobileDevice>, MobileDeviceProcessor>();
+builder.Services.RegisterAllTypes<IDocumentProcessor>(new[] { typeof(IDocumentProcessor).Assembly }, ServiceLifetime.Singleton);
 
 builder.Logging.AddConsole();
 

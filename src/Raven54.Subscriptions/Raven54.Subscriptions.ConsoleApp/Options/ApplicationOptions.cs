@@ -6,8 +6,8 @@ namespace Raven54.Subscriptions.ConsoleApp.Options
     {
         public static readonly Dictionary<string, string> Mappings = new()
         {
-            { "-st", "subscriptiontype" },
-            { "--subscription-type", "subscriptiontype" },
+            { "-st", nameof(SubscriptionType) },
+            { "--subscription-type", nameof(SubscriptionType) },
         };
 
         public SubscriptionType SubscriptionType { get; set; }
