@@ -1,4 +1,5 @@
-﻿using Raven.Client.Documents;
+﻿using Microsoft.Extensions.Logging;
+using Raven.Client.Documents;
 using Raven.Client.Documents.Subscriptions;
 using Raven54.Subscriptions.Domain.Models;
 using Raven54.Subscriptions.Infrastructure.DocumentProcessors;
@@ -9,13 +10,16 @@ namespace Raven54.Subscriptions.Infrastructure
     {
         private readonly IDocumentStore _store;
         private readonly IDocumentProcessorFactory _documentProcessorFactory;
+        private readonly ILogger<DataSubscriptionsManager> _logger;
 
         public DataSubscriptionsManager(
             IDocumentStore store,
-            IDocumentProcessorFactory documentProcessorFactory)
+            IDocumentProcessorFactory documentProcessorFactory,
+            ILogger<DataSubscriptionsManager> logger)
         {
             _store = store;
             _documentProcessorFactory = documentProcessorFactory;
+            _logger = logger;
         }
 
         public SubscriptionType SubscriptionType => SubscriptionType.Data;
@@ -46,7 +50,7 @@ namespace Raven54.Subscriptions.Infrastructure
                 return null;
             }
                 
-            Console.WriteLine("Found existing subscription {0} for '{1}'", subscriptionState.SubscriptionId, subscriptionState.SubscriptionName);
+            _logger.LogInformation("Found existing subscription {subscriptionId} for '{subscriptionName}'", subscriptionState.SubscriptionId, subscriptionState.SubscriptionName);
 
             return subscriptionState;
         }
@@ -60,7 +64,7 @@ namespace Raven54.Subscriptions.Infrastructure
 
             var subscriptionName = await _store.Subscriptions.CreateAsync(options, token: ct).ConfigureAwait(false);
 
-            Console.WriteLine("Created new subscription '{0}'", subscriptionName);
+            _logger.LogInformation("Created new subscription '{subscriptionName}'", subscriptionName);
 
             return subscriptionName;
         }
@@ -79,7 +83,7 @@ namespace Raven54.Subscriptions.Infrastructure
 
             _ = subscriptionWorker.Run(async batch => await _documentProcessorFactory.ProcessDocumentsAsync(batch).ConfigureAwait(false), cancellationToken);
 
-            Console.WriteLine("Listening to changes for subscription '{0}' for type '{1}'", subscriptionName, typeof(T));
+            _logger.LogInformation("Listening to changes for subscription '{subscriptionName}' for type '{documentType}'", subscriptionName, typeof(T));
 
             return Task.CompletedTask;
         }

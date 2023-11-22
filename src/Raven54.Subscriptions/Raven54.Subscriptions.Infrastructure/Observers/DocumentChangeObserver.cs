@@ -1,4 +1,5 @@
-﻿using Raven.Client.Documents;
+﻿using Microsoft.Extensions.Logging;
+using Raven.Client.Documents;
 using Raven.Client.Documents.Changes;
 using Raven54.Subscriptions.Domain.Models;
 using System.Text.Json;
@@ -8,32 +9,36 @@ namespace Raven54.Subscriptions.Infrastructure.Observers
     public class DocumentChangeObserver : IObserver<DocumentChange>
     {
         private readonly IDocumentStore _store;
+        private readonly ILogger<DocumentChangeObserver> _logger;
 
-        public DocumentChangeObserver(IDocumentStore store)
+        public DocumentChangeObserver(
+            IDocumentStore store,
+            ILogger<DocumentChangeObserver> logger)
         {
             _store = store;
+            _logger = logger;
         }
 
         public void OnCompleted()
         {
-            Console.WriteLine("{0} completed", typeof(DocumentChangeObserver));
+            _logger.LogInformation("Observer '{observer}' completed", typeof(DocumentChangeObserver));
         }
 
         public void OnError(Exception error)
         {
-            Console.Write(error.ToString());
+            _logger.LogError(error, "Error in observer '{observer}'", typeof(DocumentChangeObserver));
         }
 
         public void OnNext(DocumentChange value)
         {
             if (value.Type == DocumentChangeTypes.Delete)
             {
-                Console.WriteLine("Document {0} deleted", value.Id);
+                _logger.LogInformation("Document {documentId} deleted", value.Id);
 
                 return;
             }
 
-            Console.WriteLine("{0} event: {1}", typeof(DocumentChange), JsonSerializer.Serialize(value));
+            _logger.LogInformation("{changeType} event: {json}", typeof(DocumentChange), JsonSerializer.Serialize(value));
 
             using (var session = _store.OpenSession())
             {
@@ -44,12 +49,12 @@ namespace Raven54.Subscriptions.Infrastructure.Observers
 
                             if (mobileDevice != null)
                             {
-                                Console.WriteLine("{0} change: {1}", typeof(DocumentChangeObserver), JsonSerializer.Serialize(mobileDevice));
+                                _logger.LogInformation("{observer} change: {json}", typeof(DocumentChangeObserver), JsonSerializer.Serialize(mobileDevice));
                             }
 
                         break;
                     default:
-                        Console.WriteLine("Don't know how to map from collection '{0}'", value.CollectionName);
+                        _logger.LogInformation("Don't know how to map from collection '{collectionName}'", value.CollectionName);
 
                         break;
                 }

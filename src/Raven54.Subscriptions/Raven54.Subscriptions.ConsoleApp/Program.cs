@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Raven.Client.Documents.Changes;
 using Raven54.Subscriptions.ConsoleApp.Options;
 using Raven54.Subscriptions.Domain.Models;
@@ -23,6 +24,8 @@ builder.Services.AddSingleton<ISubscriptionManager, DataSubscriptionsManager>();
 builder.Services.AddSingleton<ISubscriptionManagerFactory, SubscriptionManagerFactory>();
 builder.Services.AddSingleton<IDocumentProcessorFactory, DocumentProcessorFactory>();
 builder.Services.AddSingleton<IDocumentProcessor<MobileDevice>, MobileDeviceProcessor>();
+
+builder.Logging.AddConsole();
 
 using IHost host = builder.Build();
 
